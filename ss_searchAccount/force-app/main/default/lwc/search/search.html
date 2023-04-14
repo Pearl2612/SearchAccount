@@ -1,0 +1,70 @@
+<template>
+  <lightning-card title="Student Profile Lookup">
+    <div class="slds-var-p-around_medium" >
+      <template
+        for:each={pillData}
+        for:item="currentPillData"
+        for:index="index"
+      >
+        <lightning-pill
+          key={currentPillData.fieldIndex}
+          label={currentPillData.fieldLabel}
+          name={currentPillData.fieldName}
+          data-index={index}
+          data-value={currentPillData.fieldValue}
+          onremove={removeHandler}
+          style="
+            --slds-c-pill-spacing-inline-end: 0.5rem;
+            --slds-c-pill-spacing-inline-start: 0.5rem;
+          "
+        ></lightning-pill>
+      </template>
+
+      <!-- combobox filter -->
+      <div class="slds-grid slds-gutters">
+        <template for:each={filterData} for:item="currentFilterData">
+          <lightning-combobox
+            key={currentFilterData.fieldIndex}
+            name={currentFilterData.fieldName}
+            label={currentFilterData.fieldLabel}
+            value={currentFilterData.fieldValue}
+            options={currentFilterData.fieldOptions}
+            onchange={changeHandler}
+            class="slds-p-vertical_x-small slds-p-horizontal_medium"
+          ></lightning-combobox>
+        </template>
+        <lightning-button
+          variant="neutral"
+          label="Reset"
+          onclick={resetAll}
+          class="slds-p-top_x-large"
+        ></lightning-button>
+      </div>
+
+      <lightning-input
+        class="searchInput"
+        type="search"
+        label="Search Account"
+        placeholder="Search"
+        onchange={handleSearch}
+      ></lightning-input
+      ><br /><br />
+      <template if:true={data}>
+      <div class="dataTable" style="height: 400px">
+        <c-custom-data-table-search-account
+          key-field="id"
+          data={data}
+          columns={columns}
+          onrowaction={handleRowAction}
+          show-row-number-column="true"
+          hide-checkbox-column="true"
+          sorted-by={sortBy}
+          sorted-direction={sortDirection}
+          onsort={handleSortAccountData}
+        ></c-custom-data-table-search-account>
+      </div>
+    </template>
+    <template if:true={error}> {error} </template>
+    </div>
+  </lightning-card>
+</template>
