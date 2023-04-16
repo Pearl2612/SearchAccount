@@ -3,18 +3,18 @@ import { LightningElement, wire, track, api } from "lwc";
 import { NavigationMixin } from "lightning/navigation";
 
 const columns = [
-  { label: "Profile picture", fieldName: "accountImg", type: "customImage",},
+  { label: "Profile picture", fieldName: "accountImg", type: "customImage" },
   {
     label: "Student name",
     fieldName: "accountName",
     sortable: "true",
     type: "button",
-    typeAttributes: {label:{  fieldName:'accountName'}, variant:'base'}
+    typeAttributes: { label: { fieldName: "accountName" }, variant: "base" }
   },
   { label: "Student ID", fieldName: "accountId", sortable: "true" },
   { label: "College", fieldName: "College", sortable: "true" },
   { label: "Program", fieldName: "Program", sortable: "true" },
-  { label: "Student Cohort:", fieldName: "studentCohort", sortable: "true" },
+  { label: "Student Cohort:", fieldName: "studentCohort", sortable: "true" }
 ];
 export default class search extends NavigationMixin(LightningElement) {
   @track data;
@@ -64,40 +64,46 @@ export default class search extends NavigationMixin(LightningElement) {
 
   handleSearch(event) {
     const searchKey = event.target.value.toLowerCase();
-    console.log("Search String is " + searchKey);
-
     if (searchKey) {
-      this.data = this.initialRecords;
-      console.log("Account Records are " + JSON.stringify(this.data));
-
-      if (this.data) {
-        let recs = [];
-
-        for (let rec of this.data) {
-          console.log("Rec is " + JSON.stringify(rec));
-          let valuesArray = Object.values(rec);
-          console.log("valuesArray is " + JSON.stringify(valuesArray));
-
-          for (let val of valuesArray) {
-            console.log("val is " + val);
-            let strVal = String(val);
-
-            if (strVal) {
-              if (strVal.toLowerCase().includes(searchKey)) {
-                recs.push(rec);
-                break;
-              }
-            }
-          }
+      let recs = [];
+      for (let rec of this.data) {
+        if (
+          rec.accountId.toLowerCase().includes(searchKey) ||
+          rec.accountName.toLowerCase().includes(searchKey)
+        ) {
+          recs.push(rec);
         }
-
-        //console.log("Matched Accounts are " + JSON.stringify(recs));
-        this.data = recs;
       }
+      this.tableData = recs;
+      this.data = recs;
     } else {
+      this.tableData = this.initialRecords;
       this.data = this.initialRecords;
     }
+    this.emptyAllFieldOptions();
+    this.updatePicklistValues();
+    this.generatePillData();
   }
+  generatePillData() {
+    this.pillData = [];
+    for (let fieldName in this.filterFields) {
+      if (this.filterFields.hasOwnProperty(fieldName)) {
+        let fieldValue = this.filterFields[fieldName];
+        if (fieldValue) {
+          let fieldLabel =
+            this.fields.find((field) => field.value == fieldName)?.label ??
+            fieldName;
+          this.pillData.push({
+            fieldIndex: this.pillData.length,
+            fieldValue: fieldValue,
+            fieldName: fieldName,
+            fieldLabel: fieldLabel + ":" + fieldValue
+          });
+        }
+      }
+    }
+  }
+
   handleSearchChange(event) {
     this.searchString = event.detail.value;
     //console.log("Updated Search String is " + this.searchString);
@@ -118,7 +124,7 @@ export default class search extends NavigationMixin(LightningElement) {
       this.tableDataCopy = JSON.parse(JSON.stringify(this.tableData));
       // Based on the result set update the filter picklists.
       this.updatePicklistValues();
-      console.log("tableData: " + JSON.stringify(this.tableData));
+      //console.log("tableData: " + JSON.stringify(this.tableData));
     });
   }
   updatePicklistValues() {
@@ -216,7 +222,7 @@ export default class search extends NavigationMixin(LightningElement) {
     this.template
       .querySelectorAll("lightning-combobox")
       .forEach((currentElement) => {
-        currentElement.value = null;
+      currentElement.value = null;
       });
     // Reset table data to the original values.
     this.tableData = JSON.parse(JSON.stringify(this.tableDataCopy));
@@ -226,7 +232,11 @@ export default class search extends NavigationMixin(LightningElement) {
     this.updatePicklistValues();
     //!!
     this.data = this.tableDataCopy;
-  }
+    }
+  
+  
+  
+  
   //remove handler box
   removeHandler(event) {
     let currentFieldLabel = event.target.label;
@@ -282,21 +292,22 @@ export default class search extends NavigationMixin(LightningElement) {
         ) {
           localTableDataList.push(currentTableDataElement);
         }
+        
         this.data = localTableDataList;
+        this.tableData = localTableDataList;
       }
     );
 
-    console.log("localTableDataList" + localTableDataList);
+    //console.log("localTableDataList" + localTableDataList);
   }
   handleRowAction(event) {
     const row = event.detail.row;
-      this[NavigationMixin.Navigate]({
-        type: 'standard__recordPage',
-        attributes: {
-          recordId: row.accountId,
-          actionName: 'view'
-        }
-      });
-        
+    this[NavigationMixin.Navigate]({
+      type: "standard__recordPage",
+      attributes: {
+        recordId: row.accountId,
+        actionName: "view"
+      }
+    });
   }
 }
