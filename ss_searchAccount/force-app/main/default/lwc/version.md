@@ -168,3 +168,4 @@ handleSearch(event) {
 
     //console.log("localTableDataList" + localTableDataList);
   }
+

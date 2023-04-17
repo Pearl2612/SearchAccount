@@ -161,6 +161,7 @@ export default class search extends NavigationMixin(LightningElement) {
     });
     return toReturn;
   }
+  
   //changeHandler
   changeHandler(event) {
     // Logic to update the data inside the datatable based on the values selected in the picklist.
@@ -174,11 +175,8 @@ export default class search extends NavigationMixin(LightningElement) {
       }
     });
     this.tableData = localTableDataList;
-
     this.emptyAllFieldOptions();
     this.updatePicklistValues();
-    //console.log("this.tableData ===> " + JSON.stringify(this.tableData));
-    //console.log("this.filterData ===> " + JSON.stringify(this.filterData));
     // Generate Pill Data on selection / change of values from the filter picklist
     this.pillData = [
       ...this.pillData,
@@ -219,24 +217,22 @@ export default class search extends NavigationMixin(LightningElement) {
     // Clear all the data present in the filtered data array.
     this.emptyAllFieldOptions();
     // Clear all the selections in the filter picklist
-    this.template
-      .querySelectorAll("lightning-combobox")
-      .forEach((currentElement) => {
-      currentElement.value = null;
-      });
+    this.template.querySelectorAll("lightning-combobox").forEach((currentElement) => {
+      if (currentElement.value !== null) {
+        currentElement.value = null;
+      }
+    });
     // Reset table data to the original values.
     this.tableData = JSON.parse(JSON.stringify(this.tableDataCopy));
     // Remove all the pills from the screen.
     this.pillData = [];
     // Reset all the available options inside the filter picklist
     this.updatePicklistValues();
-    //!!
+    // Reset the filtered data to the original data.
     this.data = this.tableDataCopy;
-    }
+  }
   
-  
-  
-  
+
   //remove handler box
   removeHandler(event) {
     let currentFieldLabel = event.target.label;
@@ -249,7 +245,7 @@ export default class search extends NavigationMixin(LightningElement) {
     // If there are no pills that means nothing selected from the picklist
     // and hence we should reset the data inside the datatable to the original
     // dataset.
-    if (this.pillData.length === 0)
+    if (this.pillData.length <= -1)
       this.tableData = JSON.parse(JSON.stringify(this.tableDataCopy));
     // Else there are some selections still remaining and hence we should show
     // the data inside the datatable based on the remaining selection
@@ -292,7 +288,7 @@ export default class search extends NavigationMixin(LightningElement) {
         ) {
           localTableDataList.push(currentTableDataElement);
         }
-        
+
         this.data = localTableDataList;
         this.tableData = localTableDataList;
       }
